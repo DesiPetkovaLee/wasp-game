@@ -1,3 +1,6 @@
+import scala.util.Random
+import scala.io.StdIn.readLine
+
 trait Wasp:
   val deduction: Int
   var hitPoints: Int
@@ -33,3 +36,43 @@ object Nest:
   def displayStatus(wasps: List[Wasp]): Unit =
     println("\nScanning the nest... Here's what's left ->" )
     wasps.foreach(println)
+
+object Game:
+  def fire(wasps: List[Wasp]): Unit =
+    val aliveWasps = wasps.filter(w => !w.isDead)
+
+    if aliveWasps.nonEmpty then
+      val random = Random.nextInt(aliveWasps.length)
+      val target = aliveWasps(random)
+
+      println(s"\n One ${target.getClass.getSimpleName} was struck by your fire.")
+      target.takeHit()
+
+@main def startWaspGame(): Unit =
+  val nestWasps = Nest.createWasps()
+  val queen = nestWasps.head
+
+  println("Welcome to the Wasp Game!")
+  println("Type 'fire' to hit a wasp, or 'quit' to exit.")
+
+  var gameIsRunning = true
+
+  while gameIsRunning do 
+    //get the input and clean it up
+    val input = readLine("Enter your command: ").toLowerCase.trim
+
+    input match
+      case "fire" =>
+        Game.fire(nestWasps)
+        Nest.displayStatus(nestWasps)
+        if queen.isDead then
+          println("\nYou've won! The queen is dead!")
+          gameIsRunning = false
+
+      case "quit" =>
+        gameIsRunning = false
+
+      case _ =>
+        println("Invalid input. Please type 'fire' or 'quit'.")
+
+ 
