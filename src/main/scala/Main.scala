@@ -49,30 +49,41 @@ object Game:
       target.takeHit()
 
 @main def startWaspGame(): Unit =
-  val nestWasps = Nest.createWasps()
-  val queen = nestWasps.head
-
   println("Welcome to the Wasp Game!")
-  println("Type 'fire' to hit a wasp, or 'quit' to exit.")
+  setupNewGame()
 
-  var gameIsRunning = true
+def setupNewGame(): Unit =
+  val nestWasps = Nest.createWasps()
+  processCommand(nestWasps)
 
-  while gameIsRunning do 
-    //get the input and clean it up
-    val input = readLine("Enter your command: ").toLowerCase.trim
+def processCommand(wasps: List[Wasp]): Unit =
+  val queen = wasps.head
+  val input = readLine("Enter your command: ").toLowerCase.trim
 
-    input match
-      case "fire" =>
-        Game.fire(nestWasps)
-        Nest.displayStatus(nestWasps)
-        if queen.isDead then
-          println("\nYou've won! The queen is dead!")
-          gameIsRunning = false
+  input match
+    case "fire" => 
+      if queen.isDead || wasps.forall(w => w.isDead) then
+        println("\nThe game is already over! Type 'restart' to play again.")
+        processCommand(wasps)
+      else 
+        Game.fire(wasps)
+        Nest.displayStatus(wasps)
 
-      case "quit" =>
-        gameIsRunning = false
+        if queen.isDead || wasps.forall(w => w.isDead) then
+          println("\nGAME OVER!")
+          println("Type 'restart' to play again or 'quit' to exit.")
+          processCommand(wasps)
+        else
+          processCommand(wasps)
 
-      case _ =>
-        println("Invalid input. Please type 'fire' or 'quit'.")
+    case "restart" => 
+      setupNewGame()
 
- 
+    case "quit" =>
+      println("Thanks for playing!")
+
+    case _ => 
+      println("Invalid command. Please enter 'fire', 'restart', or 'quit'.")  
+      processCommand(wasps)
+
+  
