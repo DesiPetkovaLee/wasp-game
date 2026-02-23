@@ -131,9 +131,10 @@ def saveToCSV(name: String, startTime: Long, finalShots: Int): Unit =
   val printWriter = new PrintWriter(fileWriter)
 
   try 
-    if isNewFile then 
+    if (isNewFile) then 
       printWriter.println("Player Name, Shots Fired, Time (seconds)") 
-      printWriter.println(s"$name,$finalShots,$duration")
-      println(s"\n[Logged to CSV: $name, $finalShots shots, $duration seconds]")
+
+    printWriter.println(s"$name,$finalShots,$duration")
+    println(s"\n[Logged to CSV: $name, $finalShots shots, $duration seconds]")
   finally 
     printWriter.close()
