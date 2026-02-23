@@ -8,7 +8,8 @@ trait Wasp:
   val deduction: Int
   var hitPoints: Int
 
-  def isDead: Boolean = hitPoints <= 0
+  def isDead(queen: Wasp): Boolean = 
+    this.hitPoints <= 0 || queen.hitPoints <= 0
 
   def takeHit(): Unit = 
     hitPoints = Math.max(0, hitPoints - deduction)
@@ -42,7 +43,8 @@ object Nest:
 
 object Game:
   def fire(wasps: List[Wasp]): Unit =
-    val aliveWasps = wasps.filter(w => !w.isDead)
+    val queen = wasps.head                                               
+    val aliveWasps = wasps.filter(w => !w.isDead(queen))
 
     if aliveWasps.nonEmpty then
       val random = Random.nextInt(aliveWasps.length)
@@ -69,7 +71,7 @@ def processCommand(wasps: List[Wasp], name: String, startTime: Long, shots: Int)
 
   input match
     case "fire" => 
-      if queen.isDead || wasps.forall(w => w.isDead) then
+      if queen.isDead(queen) || wasps.forall(w => w.isDead(queen)) then
         println("\nThe game is already over! Type 'restart' to play again.")
         processCommand(wasps, name, startTime, shots)
       else 
@@ -78,7 +80,7 @@ def processCommand(wasps: List[Wasp], name: String, startTime: Long, shots: Int)
 
         val newShots = shots + 1
 
-        if queen.isDead || wasps.forall(w => w.isDead) then
+        if queen.isDead(queen) || wasps.forall(w => w.isDead(queen)) then
           println(s"\nGAME OVER, $name!")
           println(s"You took $newShots shots.")
           saveToCSV(name, startTime, newShots)
@@ -91,7 +93,7 @@ def processCommand(wasps: List[Wasp], name: String, startTime: Long, shots: Int)
       println(s"Auto-mode activated, $name! Taking down wasps at light speed! ")
       val finalShots = runAutoFire(wasps, shots)
       Nest.displayStatus(wasps)
-      println(s"\nMISSION ACCOMPLISHED, $name!")
+      println(s"\nMission Accomplished, $name!")
       saveToCSV(name, startTime, finalShots)
       println("Type 'restart' to play again or 'quit' to exit.")
       processCommand(wasps, name, startTime, finalShots)
@@ -109,7 +111,7 @@ def processCommand(wasps: List[Wasp], name: String, startTime: Long, shots: Int)
 @tailrec
 def runAutoFire(wasps: List[Wasp], count: Int): Int =
   val queen = wasps.head
-  if queen.isDead || wasps.forall(w => w.isDead) then
+  if queen.isDead(queen) || wasps.forall(w => w.isDead(queen)) then
     count
   else 
     Game.fire(wasps) 
